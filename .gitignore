@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+.pytest_cache/
+
+# Virtual environment
+.venv/
+
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Project config (local)
+CLAUDE.md
+.claude/
+.kiro/
+
+# OS
+.DS_Store
+Thumbs.db
+*:Zone.Identifier
