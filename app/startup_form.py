@@ -72,6 +72,7 @@ class StartupForm:
     def show(self) -> FormResult | None:
         root = tk.Tk()
         root.title("sl_say - 設定")
+        root.option_add("*Font", "メイリオ 10")
 
         # ウィンドウアイコン設定
         import sys
