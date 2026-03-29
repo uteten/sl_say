@@ -112,7 +112,6 @@ class TestFilterConfigSaveDefault:
         FilterConfig.save_default(path)
         assert path.exists()
         config = FilterConfig.load(path)
-        assert len(config.exclude_patterns) == 0
         assert len(config.exclude_speaker_rules) > 0
 
     def test_save_default_contains_sample_rules(self, tmp_path: Path) -> None:

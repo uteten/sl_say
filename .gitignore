@@ -19,6 +19,9 @@ CLAUDE.md
 .claude/
 .kiro/
 
+# Temp files
+*.tmp
+
 # OS
 .DS_Store
 Thumbs.db

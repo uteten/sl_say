@@ -3,8 +3,6 @@ from dataclasses import dataclass
 
 from app.filter_config import FilterConfig
 
-SYSTEM_SPEAKERS = {"Second Life", "Firestorm"}
-
 _PARENS_RE = re.compile(r"\s*\([^)]*\)")
 _PARENS_EXTRACT_RE = re.compile(r"\(([^)]+)\)")
 
@@ -44,12 +42,6 @@ class ChatParser:
             speaker = speak_match.group(1)
             modifier = speak_match.group(2)
             body = speak_match.group(3)
-
-            if speaker in SYSTEM_SPEAKERS:
-                return None
-
-            if body in ("はオンラインです。", "はオフラインです。"):
-                return None
 
             parens_match = _PARENS_EXTRACT_RE.search(speaker)
             exclude_target = parens_match.group(1) if parens_match else speaker

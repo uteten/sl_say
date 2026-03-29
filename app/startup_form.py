@@ -60,6 +60,8 @@ class StartupForm:
         filters_path: Path | None = None,
         on_start: Callable[[FormResult], None] | None = None,
         on_stop: Callable[[], None] | None = None,
+        on_rate_change: Callable[[str], None] | None = None,
+        on_volume_change: Callable[[int], None] | None = None,
     ) -> None:
         self._initial_file = initial_file
         self._initial_rate = initial_rate
@@ -67,6 +69,9 @@ class StartupForm:
         self._filters_path = filters_path
         self._on_start = on_start
         self._on_stop = on_stop
+        self._on_rate_change = on_rate_change
+        self._on_volume_change = on_volume_change
+        self._running = False
         self._result: FormResult | None = None
 
     def show(self) -> FormResult | None:
@@ -121,10 +126,16 @@ class StartupForm:
             row=2, column=0, sticky="w", pady=(0, 4),
         )
         rate_var = tk.IntVar(value=initial_rate_pct)
+
+        def on_rate_slider(v: str) -> None:
+            rate_label_var.set(f"再生速度: {v}%")
+            if self._running and self._on_rate_change:
+                self._on_rate_change(_pct_to_rate_str(int(v)))
+
         rate_scale = tk.Scale(
             config_frame, from_=0, to=300, orient="horizontal",
             variable=rate_var, showvalue=False, length=300,
-            command=lambda v: rate_label_var.set(f"再生速度: {v}%"),
+            command=on_rate_slider,
         )
         rate_scale.grid(row=3, column=0, columnspan=2, sticky="w", pady=(0, 12))
 
@@ -134,10 +145,16 @@ class StartupForm:
             row=4, column=0, sticky="w", pady=(0, 4),
         )
         volume_var = tk.IntVar(value=self._initial_volume)
+
+        def on_volume_slider(v: str) -> None:
+            volume_label_var.set(f"音量: {v}")
+            if self._running and self._on_volume_change:
+                self._on_volume_change(int(v))
+
         volume_scale = tk.Scale(
             config_frame, from_=0, to=100, orient="horizontal",
             variable=volume_var, showvalue=False, length=300,
-            command=lambda v: volume_label_var.set(f"音量: {v}"),
+            command=on_volume_slider,
         )
         volume_scale.grid(row=5, column=0, columnspan=2, sticky="w", pady=(0, 12))
 
@@ -160,13 +177,14 @@ class StartupForm:
         log_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
 
         # 無効化対象ウィジェット
-        input_widgets = [file_entry, browse_btn, rate_scale, volume_scale]
+        input_widgets = [file_entry, browse_btn]
 
         def switch_to_running_mode() -> None:
             for w in input_widgets:
                 w.configure(state="disabled")
             start_btn.configure(state="disabled")
             stop_btn.configure(state="normal")
+            self._running = True
             log_frame.pack(fill="both", expand=True, pady=(0, 16))
             log_text.configure(state="normal")
             root.resizable(True, True)
@@ -174,6 +192,7 @@ class StartupForm:
             logging.getLogger().addHandler(log_handler)
 
         def switch_to_config_mode() -> None:
+            self._running = False
             for w in input_widgets:
                 w.configure(state="normal")
             start_btn.configure(state="normal")

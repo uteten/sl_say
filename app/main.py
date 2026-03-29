@@ -76,24 +76,33 @@ def main() -> None:
         config = store.load()
         active_watcher: list[FileWatcher] = []
         active_queue: list[TTSQueue] = []
+        active_engine: list[TTSEngine] = []
+        active_player: list[AudioPlayer] = []
 
         def on_start(result: FormResult) -> None:
             store.save(AppConfig(file_path=result.file_path, rate=result.rate, volume=result.volume))
             import threading
 
-            # 前回の停止漏れをクリーンアップ
             _stop_active()
 
             t = threading.Thread(
                 target=_run_pipeline_gui,
                 args=(result.file_path, args.voice, result.rate, result.volume, filters_path,
-                      active_watcher, active_queue),
+                      active_watcher, active_queue, active_engine, active_player),
                 daemon=True,
             )
             t.start()
 
         def on_stop() -> None:
             _stop_active()
+
+        def on_rate_change(rate: str) -> None:
+            for e in active_engine:
+                e.rate = rate
+
+        def on_volume_change(volume: int) -> None:
+            for p in active_player:
+                p._volume = max(0, min(100, volume))
 
         def _stop_active() -> None:
             for w in active_watcher:
@@ -102,6 +111,8 @@ def main() -> None:
             for q in active_queue:
                 q.stop()
             active_queue.clear()
+            active_engine.clear()
+            active_player.clear()
 
         form = StartupForm(
             initial_file=config.file_path,
@@ -110,6 +121,8 @@ def main() -> None:
             filters_path=filters_path,
             on_start=on_start,
             on_stop=on_stop,
+            on_rate_change=on_rate_change,
+            on_volume_change=on_volume_change,
         )
         form.show()
         _stop_active()
@@ -126,6 +139,8 @@ def _run_pipeline_gui(
     filters_path: str,
     active_watcher: list,
     active_queue: list,
+    active_engine: list,
+    active_player: list,
 ) -> None:
     resolver = PathResolver()
     try:
@@ -142,6 +157,8 @@ def _run_pipeline_gui(
 
     active_watcher.append(watcher)
     active_queue.append(tts_queue)
+    active_engine.append(engine)
+    active_player.append(player)
 
     parser = ChatParser(filter_config=filter_config)
     tts_queue.start()
@@ -163,6 +180,10 @@ def _run_pipeline_gui(
             active_watcher.remove(watcher)
         if tts_queue in active_queue:
             active_queue.remove(tts_queue)
+        if engine in active_engine:
+            active_engine.remove(engine)
+        if player in active_player:
+            active_player.remove(player)
     logger.info("監視停止")
 
 

@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 _RE_PREFIX = "re:"
 
-_DEFAULT_EXCLUDE_SPEAKER = ["%", "[", "{", "}"]
+_DEFAULT_EXCLUDE_SPEAKER = ["%", "[", "{", "Second Life", "Firestorm"]
 
 _DEFAULT_EXCLUDE_PATTERNS: list[str] = []
 
@@ -16,10 +16,9 @@ _DEFAULT_FILTERS_CONTENT = """\
 # 初期設定に戻したい場合は、このファイルを削除してからsl_sayを再起動してください。
 #
 # 発言本文除外（発言本文にこの文字列が含まれる場合、読み上げスキップ）
-# 例:
-# testaaa
-# testbbb
 [exclude]
+はオンラインです。
+はオフラインです。
 
 # 置換ルール（読み上げ時に左辺を右辺に置換。右辺が空なら削除）
 # 書式: 置換前 => 置換後
@@ -29,21 +28,19 @@ SL => Second Life
 re:w$ => わら
 re:https?://\\S+ =>
 
-# 発言者名除外（オブジェクト等モノの発言をスキップする）
-# 発言者名が「表示名 (ID)」形式の場合、括弧内のIDで判定する
-# 括弧がない場合は発言者名全体で判定する
+# 発言者名除外（発言者名にこの文字列が含まれる場合、読み上げスキップ）
+# 発言者名が「表示名 (ID)」形式の場合は括弧内のIDで判定、括弧がない場合は発言者名全体で判定
 # re: プレフィックスで正規表現も使用可能
 #
 # デフォルト値:
-#   % — URLエンコード文字を含むオブジェクト名（例: %3A%3AStatic%3A%3A Wild Eye）
-#   [ — スクリプト付きオブジェクト名（例: Bite Marks [Bloodlines]）
-#   { — スクリプト識別子を含むオブジェクト名
-#   } — スクリプト識別子を含むオブジェクト名
+#    モノの発言を除外(人の名前には含まれない文字種):% [ {
+#    システムメッセージを除外: Second Life, Firestorm
 [exclude_speaker]
 %
 [
 {
-}
+Second Life
+Firestorm
 """
 
 

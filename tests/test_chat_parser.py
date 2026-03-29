@@ -142,11 +142,15 @@ class TestChatParser:
         assert result.body == "こんにちは"
 
     def test_filter_online_notification(self) -> None:
+        from app.filter_config import FilterConfig, MatchRule
+        fc = FilterConfig(exclude_speaker_rules=[], exclude_patterns=[MatchRule.parse("はオンラインです。")])
+        parser = ChatParser(filter_config=fc)
         line = "[2026/03/26 14:05]  User: はオンラインです。"
-        result = self.parser.parse_line(line)
-        assert result is None
+        assert parser.parse_line(line) is None
 
     def test_filter_offline_notification(self) -> None:
+        from app.filter_config import FilterConfig, MatchRule
+        fc = FilterConfig(exclude_speaker_rules=[], exclude_patterns=[MatchRule.parse("はオフラインです。")])
+        parser = ChatParser(filter_config=fc)
         line = "[2026/03/26 14:05]  User: はオフラインです。"
-        result = self.parser.parse_line(line)
-        assert result is None
+        assert parser.parse_line(line) is None
