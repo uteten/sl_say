@@ -168,7 +168,9 @@ def _run_pipeline_gui(
     try:
         for line in watcher.watch():
             msg = parser.parse_line(line)
-            if msg:
+            if msg and msg.skipped:
+                logger.info("%s: %s (skip)", msg.speaker, msg.body)
+            elif msg:
                 logger.info("%s: %s", msg.speaker, msg.body)
                 tts_queue.enqueue(msg)
     except Exception:
@@ -223,7 +225,9 @@ def _run_pipeline(
     try:
         for line in watcher.watch():
             msg = parser.parse_line(line)
-            if msg:
+            if msg and msg.skipped:
+                logger.info("%s: %s (skip)", msg.speaker, msg.body)
+            elif msg:
                 logger.info("%s: %s", msg.speaker, msg.body)
                 tts_queue.enqueue(msg)
     except KeyboardInterrupt:

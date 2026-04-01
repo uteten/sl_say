@@ -33,14 +33,10 @@ re:https?://\\S+ =>
 # re: プレフィックスで正規表現も使用可能
 #
 # デフォルト値:
-#    モノの発言を除外(人の名前には含まれない文字種):% [ {
-#    システムメッセージを除外: Second Life, Firestorm
+#    人のusernameは [a-zA-Z0-9.] のみなので、それ以外の文字を含む発言者を除外
+#    ※ Firestormのログ形式（表示名 (ID)）以外ではユーザーが誤検知される可能性あり
 [exclude_speaker]
-%
-[
-{
-Second Life
-Firestorm
+re:[^a-zA-Z0-9.]
 """
 
 

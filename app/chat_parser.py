@@ -20,6 +20,7 @@ class ChatMessage:
     speaker: str
     body: str
     message_type: str  # "say" | "shout" | "whisper" | "emote"
+    skipped: bool = False
 
 
 class ChatParser:
@@ -45,11 +46,9 @@ class ChatParser:
 
             parens_match = _PARENS_EXTRACT_RE.search(speaker)
             exclude_target = parens_match.group(1) if parens_match else speaker
-            if self._filter.should_exclude_speaker(exclude_target):
-                return None
-
-            if self._filter.should_exclude_body(body):
-                return None
+            skipped = self._filter.should_exclude_speaker(
+                exclude_target
+            ) or self._filter.should_exclude_body(body)
 
             if modifier == "shouts":
                 message_type = "shout"
@@ -59,7 +58,12 @@ class ChatParser:
                 message_type = "say"
 
             speaker = _PARENS_RE.sub("", speaker).strip()
-            return ChatMessage(speaker=speaker, body=body, message_type=message_type)
+            return ChatMessage(
+                speaker=speaker,
+                body=body,
+                message_type=message_type,
+                skipped=skipped,
+            )
 
         # Emote: no colon pattern — SL avatar names are typically "First Last"
         parts = content.split(" ", 2)

@@ -48,7 +48,8 @@ class TestChatParser:
     def test_filter_system_message(self) -> None:
         line = "[2026/03/26 14:09]  Second Life: Teleport completed"
         result = self.parser.parse_line(line)
-        assert result is None
+        assert result is not None
+        assert result.skipped is True
 
     def test_filter_empty_line(self) -> None:
         result = self.parser.parse_line("")
@@ -80,12 +81,14 @@ class TestChatParser:
     def test_filter_object_speaker_with_percent(self) -> None:
         line = "[2026/03/26 14:05]  %3A%3AStatic%3A%3A Wild Eye: Configuration Loaded"
         result = self.parser.parse_line(line)
-        assert result is None
+        assert result is not None
+        assert result.skipped is True
 
     def test_filter_object_speaker_with_bracket(self) -> None:
         line = "[2026/03/26 14:05]  Bite Marks [Bloodlines] 2.2: new version available"
         result = self.parser.parse_line(line)
-        assert result is None
+        assert result is not None
+        assert result.skipped is True
 
     def test_filter_body_exclude_pattern(self) -> None:
         from app.filter_config import FilterConfig, MatchRule
@@ -93,7 +96,8 @@ class TestChatParser:
         parser = ChatParser(filter_config=fc)
         line = "[2026/03/26 14:05]  SomeObject: Configuration Loaded"
         result = parser.parse_line(line)
-        assert result is None
+        assert result is not None
+        assert result.skipped is True
 
     def test_allow_normal_speaker_with_parens(self) -> None:
         line = "[2026/03/26 14:05]  Mr. Pickle (obadasho): hi uten"
@@ -109,14 +113,17 @@ class TestChatParser:
             exclude_patterns=[],
         )
         parser = ChatParser(filter_config=fc)
-        # 括弧内がマッチ → 除外
+        # 括弧内がマッチ → 除外(skipped)
         line = "[2026/03/26 14:05]  Nice Name (badbot): hello"
-        assert parser.parse_line(line) is None
+        result = parser.parse_line(line)
+        assert result is not None
+        assert result.skipped is True
         # 括弧外はチェック対象外 → 通過
         line2 = "[2026/03/26 14:05]  badbot (goodid): hello"
         result = parser.parse_line(line2)
         assert result is not None
         assert result.speaker == "badbot"
+        assert result.skipped is False
 
     def test_exclude_speaker_no_parens_checks_full_name(self) -> None:
         """括弧なし発言者の場合、全体で除外判定する"""
@@ -127,7 +134,9 @@ class TestChatParser:
         )
         parser = ChatParser(filter_config=fc)
         line = "[2026/03/26 14:05]  Signboard: ちりこ [700m]"
-        assert parser.parse_line(line) is None
+        result = parser.parse_line(line)
+        assert result is not None
+        assert result.skipped is True
 
     def test_message_with_colon_in_body(self) -> None:
         line = "[2026/03/26 14:05]  User: 時刻は14:30です"
@@ -146,11 +155,15 @@ class TestChatParser:
         fc = FilterConfig(exclude_speaker_rules=[], exclude_patterns=[MatchRule.parse("はオンラインです。")])
         parser = ChatParser(filter_config=fc)
         line = "[2026/03/26 14:05]  User: はオンラインです。"
-        assert parser.parse_line(line) is None
+        result = parser.parse_line(line)
+        assert result is not None
+        assert result.skipped is True
 
     def test_filter_offline_notification(self) -> None:
         from app.filter_config import FilterConfig, MatchRule
         fc = FilterConfig(exclude_speaker_rules=[], exclude_patterns=[MatchRule.parse("はオフラインです。")])
         parser = ChatParser(filter_config=fc)
         line = "[2026/03/26 14:05]  User: はオフラインです。"
-        assert parser.parse_line(line) is None
+        result = parser.parse_line(line)
+        assert result is not None
+        assert result.skipped is True

@@ -133,7 +133,7 @@ class TestFilterConfigApply:
 
     def test_should_not_exclude_normal_speaker(self) -> None:
         config = FilterConfig()
-        assert config.should_exclude_speaker("Mr. Pickle (obadasho)") is False
+        assert config.should_exclude_speaker("obadasho") is False
 
     def test_should_exclude_custom_speaker(self) -> None:
         config = FilterConfig(
