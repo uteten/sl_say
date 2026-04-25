@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -53,12 +54,15 @@ class TestConfigStore:
         assert data["file_path"] == "C:\\test.txt"
         assert data["rate"] == "+30%"
 
-    def test_default_config_dir_uses_appdata(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    def test_default_config_dir_uses_appdata_on_windows(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
         monkeypatch.setenv("APPDATA", str(tmp_path))
-        store = ConfigStore()
+        with patch("sys.platform", "win32"):
+            store = ConfigStore()
         assert store._config_dir == tmp_path / "sl_say"
 
-    def test_default_config_dir_fallback_without_appdata(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.delenv("APPDATA", raising=False)
-        store = ConfigStore()
-        assert store._config_dir == Path(".sl_say")
+    def test_default_config_dir_on_macos(self) -> None:
+        with patch("sys.platform", "darwin"):
+            store = ConfigStore()
+        assert store._config_dir == Path.home() / "Library" / "Application Support" / "sl_say"

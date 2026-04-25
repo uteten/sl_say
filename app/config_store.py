@@ -1,17 +1,16 @@
 import json
 import logging
 import os
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-_DEFAULT_DIR_TEMPLATE = r"C:\Users\{user}\AppData\Roaming\Firestorm_x64"
-
 
 def _default_file_path() -> str:
-    user = os.environ.get("USERNAME") or os.environ.get("USER", "user")
-    return _DEFAULT_DIR_TEMPLATE.format(user=user)
+    from app.path_resolver import _default_firestorm_dir
+    return _default_firestorm_dir()
 
 
 @dataclass
@@ -27,12 +26,13 @@ class ConfigStore:
     def __init__(self, config_dir: Path | None = None) -> None:
         if config_dir is not None:
             self._config_dir = config_dir
+        elif sys.platform == "win32":
+            appdata = os.environ.get("APPDATA", "")
+            self._config_dir = Path(appdata) / "sl_say" if appdata else Path.home() / "AppData" / "Roaming" / "sl_say"
+        elif sys.platform == "darwin":
+            self._config_dir = Path.home() / "Library" / "Application Support" / "sl_say"
         else:
-            appdata = os.environ.get("APPDATA")
-            if appdata:
-                self._config_dir = Path(appdata) / "sl_say"
-            else:
-                self._config_dir = Path(".sl_say")
+            self._config_dir = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "sl_say"
 
     @property
     def _config_path(self) -> Path:

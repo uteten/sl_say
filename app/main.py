@@ -171,8 +171,10 @@ def _run_pipeline_gui(
             if msg:
                 logger.info("%s: %s", msg.speaker, msg.body)
                 tts_queue.enqueue(msg)
+            else:
+                logger.info("(未パース) %s", line[:80])
     except Exception:
-        pass
+        logger.exception("監視ループエラー")
     finally:
         watcher.stop()
         tts_queue.stop()

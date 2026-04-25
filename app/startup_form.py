@@ -77,16 +77,21 @@ class StartupForm:
     def show(self) -> FormResult | None:
         root = tk.Tk()
         root.title("sl_say - 設定")
-        root.option_add("*Font", "メイリオ 10")
+        import sys as _sys
+        if _sys.platform == "win32":
+            root.option_add("*Font", "メイリオ 10")
+        elif _sys.platform == "darwin":
+            root.option_add("*Font", "ヒラギノ角ゴシック 10")
 
-        # ウィンドウアイコン設定
+        # ウィンドウアイコン設定 (macOSは .ico 非対応のためスキップ)
         import sys
-        base = Path(getattr(sys, '_MEIPASS', Path(__file__).parent))
-        icon_path = base / "app" / "icon.ico"
-        if not icon_path.exists():
-            icon_path = Path(__file__).parent / "icon.ico"
-        if icon_path.exists():
-            root.iconbitmap(str(icon_path))
+        if sys.platform == "win32":
+            base = Path(getattr(sys, '_MEIPASS', Path(__file__).parent))
+            icon_path = base / "app" / "icon.ico"
+            if not icon_path.exists():
+                icon_path = Path(__file__).parent / "icon.ico"
+            if icon_path.exists():
+                root.iconbitmap(str(icon_path))
 
         # --- 設定フレーム ---
         config_frame = tk.Frame(root, padx=16, pady=16)
@@ -171,6 +176,10 @@ class StartupForm:
         log_text.configure(yscrollcommand=scrollbar.set)
         log_text.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
+        # disabled状態でもテキスト選択・コピーを有効化
+        log_text.bind("<1>", lambda e: log_text.focus_set())
+        log_text.bind("<Command-c>", lambda e: log_text.event_generate("<<Copy>>"))
+        log_text.bind("<Control-c>", lambda e: log_text.event_generate("<<Copy>>"))
 
         # カスタムログハンドラ
         log_handler = TkTextHandler(log_text, root)
@@ -237,7 +246,13 @@ class StartupForm:
         if self._filters_path:
             def open_filters() -> None:
                 if self._filters_path and self._filters_path.exists():
-                    os.startfile(self._filters_path)  # type: ignore[attr-defined]
+                    import subprocess, sys as _sys
+                    if _sys.platform == "win32":
+                        os.startfile(self._filters_path)  # type: ignore[attr-defined]
+                    elif _sys.platform == "darwin":
+                        subprocess.run(["open", str(self._filters_path)])
+                    else:
+                        subprocess.run(["xdg-open", str(self._filters_path)])
 
             link = tk.Label(config_frame, text="フィルタ設定を開く", fg="blue", cursor="hand2")
             link.grid(row=8, column=0, columnspan=2, pady=(8, 0))

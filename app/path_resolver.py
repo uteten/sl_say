@@ -1,12 +1,20 @@
 import os
+import sys
+
+
+def _default_firestorm_dir() -> str:
+    if sys.platform == "win32":
+        user = os.environ.get("USERNAME") or os.environ.get("USER", "user")
+        return rf"C:\Users\{user}\AppData\Roaming\Firestorm_x64"
+    elif sys.platform == "darwin":
+        return os.path.expanduser("~/Library/Application Support/Firestorm_x64")
+    else:
+        return os.path.expanduser("~/.firestorm_x64")
 
 
 class PathResolver:
-    DEFAULT_DIR_TEMPLATE = r"C:\Users\{user}\AppData\Roaming\Firestorm_x64"
-
     def _get_default_path(self) -> str:
-        user = os.environ.get("USERNAME") or os.environ.get("USER", "user")
-        return self.DEFAULT_DIR_TEMPLATE.format(user=user)
+        return _default_firestorm_dir()
 
     def resolve(self, path: str | None) -> str:
         if path is None:

@@ -56,6 +56,31 @@ class TestFileWatcher:
         finally:
             os.unlink(path)
 
+    def test_resets_on_file_truncation(self) -> None:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+            f.write("old line 1\n")
+            f.write("old line 2\n")
+            path = f.name
+        try:
+            watcher = FileWatcher(path, interval=0.1)
+            lines: list[str] = []
+
+            def collect() -> None:
+                for line in watcher.watch():
+                    lines.append(line)
+                    if len(lines) >= 1:
+                        watcher.stop()
+
+            t = threading.Thread(target=collect)
+            t.start()
+            time.sleep(0.3)
+            with open(path, "w") as f:
+                f.write("new line after truncation\n")
+            t.join(timeout=3)
+            assert lines == ["new line after truncation"]
+        finally:
+            os.unlink(path)
+
     def test_normalizes_crlf(self) -> None:
         with tempfile.NamedTemporaryFile(mode="wb", suffix=".txt", delete=False) as f:
             path = f.name
