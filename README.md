@@ -13,10 +13,25 @@ Second Life のチャットログ（chat.txt）をリアルタイムに監視し
 | Windows | `sl_say-windows.exe` |
 | macOS | `sl_say-macos.pkg`（ダブルクリックでインストール → `/Applications/sl_say.app` に配置） |
 
+## 事前準備：ビューワーの設定
+
+ビューワー（Firestorm / Kokua）側でチャットログの保存を有効にする必要があります。
+
+**初期設定 → プライバシー** を開き:
+- `近くのチャットの会話ログを保存する` → **チェックを入れる**
+- `日付スタンプを付加する` → **チェックしない**
+
+### chat.txt の場所
+
+| OS | パス |
+|----|------|
+| Windows | `C:\Users\<ユーザー名>\AppData\Roaming\Firestorm_x64\<アバター名>\chat.txt` |
+| macOS | `~/Library/Application Support/Firestorm_x64/<アバター名>/chat.txt`（Kokua の場合は `Kokua` または `Kokua_x64`） |
+
 ## 使い方
 
-1. `sl_say.exe` を起動すると設定フォームが表示されます
-2. **ログファイルパス**: Firestormの `chat.txt` を指定（参照ボタンでファイル選択可能）
+1. `sl_say.app`（macOS）または `sl_say.exe`（Windows）を起動すると設定フォームが表示されます
+2. **ログファイルパス**: 上記の `chat.txt` を指定（参照ボタンでファイル選択可能）
 3. **再生速度**: 0-300% でTTS読み上げ速度を調整
 4. **音量**: 0-100 で音量を調整
 5. 「開始」ボタンで監視を開始。ログがフォーム内に表示されます
