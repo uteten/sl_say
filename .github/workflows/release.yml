@@ -66,6 +66,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
           files: |
             artifacts/sl_say-windows.exe/sl_say.exe
             artifacts/sl_say-macos.pkg/sl_say.pkg
