@@ -11,7 +11,7 @@ Second Life のチャットログ（chat.txt）をリアルタイムに監視し
 | OS | ファイル |
 |----|---------|
 | Windows | `sl_say-windows.exe` |
-| macOS | `sl_say-macos.pkg`（ダブルクリックでインストール → `/Applications/sl_say.app` に配置） |
+| macOS | `sl_say-macos.zip`（展開して `sl_say.app` を起動、または `/Applications` にドラッグ） |
 
 ## 事前準備：ビューワーの設定
 
@@ -68,10 +68,10 @@ uv run pyinstaller sl_say.spec
 
 ```
 uv run pyinstaller sl_say.spec
-pkgbuild --component dist/sl_say.app --install-location /Applications dist/sl_say.pkg
+cd dist && zip -r sl_say-macos.zip sl_say.app
 ```
 
-`dist/sl_say.pkg` が生成されます。
+`dist/sl_say-macos.zip` が生成されます。
 
 ## 依存ライブラリ
 
