@@ -2,11 +2,16 @@
 
 # sl_say
 
-Second Life のチャットログ（chat.txt）をリアルタイムに監視し、新しいメッセージを音声で読み上げるWindows向けツール。Firestormで動作確認済み。他のビューワーでもchat.txt形式が同じであれば動作する可能性があります。
+Second Life のチャットログ（chat.txt）をリアルタイムに監視し、新しいメッセージを音声で読み上げるツール。Windows / macOS 対応。[Firestorm](https://www.firestormviewer.org/) / [Kokua](https://www.kokuaviewer.org/) で動作確認済み。他のビューワーでも chat.txt 形式が同じであれば動作する可能性があります。
 
 ## ダウンロード
 
-[sl_say.exe をダウンロード](https://github.com/uteten/sl_say/raw/main/dist/sl_say.exe) して実行してください。Python環境は不要です。
+[Releases](https://github.com/uteten/sl_say/releases) から最新版をダウンロードしてください。Python環境は不要です。
+
+| OS | ファイル |
+|----|---------|
+| Windows | `sl_say-windows.exe` |
+| macOS | `sl_say-macos.pkg`（ダブルクリックでインストール → `/Applications/sl_say.app` に配置） |
 
 ## 使い方
 
@@ -34,7 +39,9 @@ Second Life のチャットログ（chat.txt）をリアルタイムに監視し
 
 ## ビルド方法
 
-Windows環境で以下を実行してください。[uv](https://docs.astral.sh/uv/) が必要です。
+[uv](https://docs.astral.sh/uv/) が必要です。
+
+**Windows:**
 
 ```
 uv run pyinstaller sl_say.spec
@@ -42,11 +49,28 @@ uv run pyinstaller sl_say.spec
 
 `dist/sl_say.exe` が生成されます。
 
+**macOS:**
+
+```
+uv run pyinstaller sl_say.spec
+pkgbuild --component dist/sl_say.app --install-location /Applications dist/sl_say.pkg
+```
+
+`dist/sl_say.pkg` が生成されます。
+
 ## 依存ライブラリ
 
+**共通:**
 - [edge-tts](https://pypi.org/project/edge-tts/) - Microsoft Edge TTSによる音声合成（インターネット接続が必要）
+
+**Windows のみ:**
+- `winmm`（Windows 標準 MCI API）- 音声再生に使用
+
+**macOS のみ:**
+- `afplay`（macOS 標準コマンド）- 音声再生に使用
 
 ## 動作環境
 
 - Windows 10 / 11
+- macOS 12 以降
 - インターネット接続（edge-tts使用のため）
