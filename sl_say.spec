@@ -31,6 +31,8 @@ if sys.platform == 'darwin':
     exe = EXE(
         pyz,
         a.scripts,
+        a.binaries,
+        a.datas,
         [],
         name='sl_say',
         debug=False,
@@ -39,16 +41,8 @@ if sys.platform == 'darwin':
         upx=False,
         console=False,
     )
-    coll = COLLECT(
-        exe,
-        a.binaries,
-        a.datas,
-        strip=False,
-        upx=False,
-        name='sl_say',
-    )
     app = BUNDLE(
-        coll,
+        exe,
         name='sl_say.app',
         icon=_mac_icon,
         bundle_identifier='com.example.sl_say',
