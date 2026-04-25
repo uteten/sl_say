@@ -1,7 +1,7 @@
 [project]
 name = "sl-say"
 version = "0.1.0"
-description = "Firestorm chat.txt watcher with TTS readout (Windows)"
+description = "Firestorm chat.txt watcher with TTS readout (Windows/macOS)"
 requires-python = ">=3.10"
 dependencies = [
     "edge-tts",

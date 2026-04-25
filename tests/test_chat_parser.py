@@ -7,6 +7,21 @@ class TestChatParser:
     def setup_method(self) -> None:
         self.parser = ChatParser()
 
+    def test_parse_macos_12h_format(self) -> None:
+        line = "[2026/04/24 8:13 午前]  uten Resident: こんにちは"
+        result = self.parser.parse_line(line)
+        assert result is not None
+        assert result.speaker == "uten Resident"
+        assert result.body == "こんにちは"
+        assert result.message_type == "say"
+
+    def test_parse_macos_12h_pm_format(self) -> None:
+        line = "[2026/04/24 2:30 午後]  uten Resident: テスト"
+        result = self.parser.parse_line(line)
+        assert result is not None
+        assert result.speaker == "uten Resident"
+        assert result.body == "テスト"
+
     def test_parse_say_message_japanese(self) -> None:
         line = "[2026/03/26 14:05]  Kokoro Resident: こんにちは！"
         result = self.parser.parse_line(line)

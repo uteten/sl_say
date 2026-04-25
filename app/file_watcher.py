@@ -37,7 +37,18 @@ class FileWatcher:
         logger.info("初期行数: %d", seen)
 
         while self._running:
-            lines = self._read_lines()
+            try:
+                lines = self._read_lines()
+            except OSError:
+                logger.warning("ファイル読み取りエラー（リトライします）")
+                time.sleep(self.interval)
+                continue
+
+            if len(lines) < seen:
+                # ファイルが短縮・ローテートされた場合はリセット
+                logger.info("ファイル短縮を検出（%d -> %d 行）、先頭から再読み込み", seen, len(lines))
+                seen = 0
+
             if len(lines) > seen:
                 for line in lines[seen:]:
                     stripped = line.rstrip("\r\n").strip()

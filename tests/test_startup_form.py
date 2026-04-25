@@ -13,14 +13,15 @@ class TestFormResult:
     def test_stores_values(self) -> None:
         from app.startup_form import FormResult
 
-        result = FormResult(file_path="C:\\test\\chat.txt", rate="+50%")
+        result = FormResult(file_path="C:\\test\\chat.txt", rate="+50%", volume=80)
         assert result.file_path == "C:\\test\\chat.txt"
         assert result.rate == "+50%"
+        assert result.volume == 80
 
     def test_default_rate_format(self) -> None:
         from app.startup_form import FormResult
 
-        result = FormResult(file_path="path", rate="+0%")
+        result = FormResult(file_path="path", rate="+0%", volume=100)
         assert result.rate == "+0%"
 
 
